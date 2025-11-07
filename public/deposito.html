@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema Hospitalar - Depósito de Medicamentos</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Roboto", sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #667eea 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .main-container {
+        display: flex;
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        min-height: 90vh;
+      }
+
+      .sidebar {
+        width: 280px;
+        background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+        padding: 30px 20px;
+        color: white;
+      }
+
+      .sidebar-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .hospital-icon {
+        width: 50px;
+        height: 50px;
+        background: #3498db;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: white;
+      }
+
+      .hospital-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .nav-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 15px;
+        color: rgba(255, 255, 255, 0.8);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        transform: translateX(5px);
+      }
+
+      .categories-title {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.6);
+        margin: 20px 0 15px;
+        text-transform: uppercase;
+      }
+
+      .main-content {
+        flex: 1;
+        background: linear-gradient(135deg, #e7f0fa 0%, #d4e4f7 100%);
+        padding: 40px;
+        overflow-y: auto;
+      }
+
+      .page-title {
+        font-size: 2.5rem;
+        font-weight: 300;
+        color: #2c3e50;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+
+      .search-section {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      .search-input {
+        flex: 1;
+        max-width: 500px;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        outline: none;
+      }
+
+      .btn-add {
+        padding: 15px 25px;
+        background: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-add:hover {
+        background: #229954;
+        transform: translateY(-2px);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .stat-title {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 10px;
+      }
+
+      .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .filter-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+
+      .tab-button {
+        padding: 12px 25px;
+        background: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .tab-button.active {
+        background: #3498db;
+        color: white;
+      }
+
+      .medications-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+      }
+
+      .medication-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+      }
+
+      .medication-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .medication-card.critical {
+        border: 2px solid #e74c3c;
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        align-items: start;
+        gap: 10px;
+      }
+
+      .medication-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 5px;
+      }
+
+      .medication-active {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+      }
+
+      .status-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .badge-critico {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+      }
+
+      .badge-atencao {
+        background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        color: white;
+      }
+
+      .badge-normal {
+        background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        color: white;
+      }
+
+      .card-body {
+        margin: 15px 0;
+        padding: 15px 0;
+        border-top: 1px solid #ecf0f1;
+        border-bottom: 1px solid #ecf0f1;
+      }
+
+      .stock-info {
+        color: #34495e;
+        margin: 5px 0;
+        font-size: 0.9rem;
+      }
+
+      .card-actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .btn-info {
+        padding: 10px 20px;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-info:hover {
+        background: #2980b9;
+        transform: scale(1.05);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      .modal.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        max-width: 700px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 30px;
+        cursor: pointer;
+        color: #666;
+      }
+
+      .modal-title {
+        font-size: 1.8rem;
+        color: #2c3e50;
+        margin-bottom: 20px;
+      }
+
+      .detalhes-grid {
+        display: grid;
+        gap: 15px;
+      }
+
+      .detalhe-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .detalhe-item strong {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .detalhe-item span {
+        color: #2c3e50;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #2c3e50;
+        font-weight: 500;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        outline: none;
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .btn-submit {
+        width: 100%;
+        padding: 15px;
+        background: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .btn-submit:hover {
+        background: #229954;
+      }
+
+            .support-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(90deg, #2c3e50 0%, #34495e 100%);
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+      }
+
+      .support-link {
+        color: white;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 20px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+      }
+
+      .support-link:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.05);
+      }
+
+      .support-icon {
+        font-size: 1.1rem;
+      }
+
+      @media (max-width: 1024px) {
+        .main-container {
+          flex-direction: column;
+        }
+        .sidebar {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <div class="hospital-icon">+</div>
+          <h2 class="hospital-name">UTI - Hospital São Bento</h2>
+        </div>
+        <nav>
+          <ul class="nav-list">
+            <li><div class="nav-link">🏠 Início</div></li>
+            <li>
+              <div class="nav-link" onclick="abrirModalCadastro()">
+                ➕ Cadastrar Medicamento
+              </div>
+            </li>
+          </ul>
+          <h3 class="categories-title">Filtros</h3>
+          <ul class="nav-list">
+            <li>
+              <div class="nav-link" onclick="filtrarStatus('todos', event)">
+                📦 Todos
+              </div>
+            </li>
+            <li>
+              <div class="nav-link" onclick="filtrarStatus('critico', event)">
+                ⚠️ Estoque baixo
+              </div>
+            </li>
+            <li>
+              <div class="nav-link" onclick="filtrarStatus('atencao', event)">
+                ⚡ Estoque médio
+              </div>
+            </li>
+            <li>
+              <div class="nav-link" onclick="filtrarStatus('normal', event)">
+                ✅ Estoque normal
+              </div>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <h1 class="page-title">Depósito de Medicamentos</h1>
+
+        <div class="search-section">
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Buscar medicamento..."
+            id="searchInput"
+            onkeyup="buscar()"
+          />
+          <button class="btn-add" onclick="abrirModalCadastro()">
+            ➕ Cadastrar Novo
+          </button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-title">Total de Medicamentos</div>
+            <div class="stat-value" id="totalMeds">10</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Estoque Normal</div>
+            <div
+              class="stat-value"
+              style="color: #27ae60"
+              id="normalMeds"
+            >
+              7
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Estoque baixo</div>
+            <div
+              class="stat-value"
+              style="color: #e74c3c"
+              id="criticalMeds"
+            >
+              2
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-tabs">
+          <button class="tab-button active" onclick="filtrarStatus('todos', event)">
+            Todos
+          </button>
+          <button class="tab-button" onclick="filtrarStatus('critico', event)">
+            Estoque baixo
+          </button>
+          <button class="tab-button" onclick="filtrarStatus('atencao', event)">
+            Estoque médio
+          </button>
+          <button class="tab-button" onclick="filtrarStatus('normal', event)">
+            Estoque normal
+          </button>
+        </div>
+
+        <div class="medications-grid" id="medicationsGrid"></div>
+      </main>
+    </div>
+
+            <div class="support-bar">
+      <a href="suporte.html" class="support-link">
+        <span class="support-icon">💬</span>
+        Fale conosco
+      </a>
+    </div>
+
+    <div class="modal" id="detailsModal">
+      <div class="modal-content">
+        <span class="modal-close" onclick="fecharModal('detailsModal')">×</span>
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="detalhes-grid" id="modalDetails"></div>
+      </div>
+    </div>
+
+    <div class="modal" id="cadastroModal">
+      <div class="modal-content">
+        <span class="modal-close" onclick="fecharModal('cadastroModal')"
+          >×</span
+        >
+        <h2 class="modal-title">Cadastrar Novo Medicamento</h2>
+        <form onsubmit="cadastrarMedicamento(event)">
+          <div class="form-group">
+            <label>Nome do Medicamento *</label>
+            <input type="text" id="cadNome" required />
+          </div>
+          <div class="form-group">
+            <label>Quantidade em Estoque *</label>
+            <input type="number" id="cadQuantidade" required min="0" />
+          </div>
+          <div class="form-group">
+            <label>Quantidade Máxima *</label>
+            <input type="number" id="cadMaxima" required min="1" />
+          </div>
+          <div class="form-group">
+            <label>Dosagem</label>
+            <textarea id="cadDose"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Bula (Conteúdo Completo) *</label>
+            <textarea id="cadBula" required></textarea>
+          </div>
+          <div class="form-group">
+            <label>Outras Informações *</label>
+            <textarea
+              id="cadInformacoes"
+              placeholder="Ex: Princípio Ativo: [A]; Nome Comercial: [B]; Conservação: [C]; Efeitos Colaterais: [D]; Apresentação/Diluição: [E]"
+              required
+            ></textarea>
+          </div>
+          <button type="submit" class="btn-submit">
+            Cadastrar Medicamento
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // --------------------------------------------------------
+      // INTEGRAÇÃO COM BACKEND
+      // Todos os dados agora vêm do backend através da API
+      // --------------------------------------------------------
+      const API_BASE_URL = 'http://localhost:3000';
+      
+      let medicamentos = [];
+      let medicamentosFiltrados = [];
+
+      // Função para calcular status baseado na porcentagem de estoque
+      function calcularStatus(quantidade, quantidadeMaxima) {
+        const porcentagem = (quantidade / quantidadeMaxima) * 100;
+        if (porcentagem <= 30) {
+          return "critico";
+        } else if (porcentagem <= 60) {
+          return "atencao";
+        } else {
+          return "normal";
+        }
+      }
+
+      // Função para mapear dados do backend para o formato do frontend
+      function mapearMedicamento(medBackend) {
+        return {
+          id: medBackend.id,
+          nome: medBackend.nome,
+          quantidade: medBackend.estoque,
+          quantidadeMaxima: medBackend.quantidadeMax,
+          dosagem: medBackend.dosagem || "Não informada",
+          bula: medBackend.bula || "Não informada",
+          informacoes: medBackend.informacoes || "Não informada",
+          status: calcularStatus(medBackend.estoque, medBackend.quantidadeMax)
+        };
+      }
+
+      // Carregar medicamentos do backend
+      async function carregarMedicamentos() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/medicamento`);
+          if (!response.ok) {
+            throw new Error('Erro ao carregar medicamentos');
+          }
+          const dadosBackend = await response.json();
+          medicamentos = dadosBackend.map(mapearMedicamento);
+          medicamentosFiltrados = [...medicamentos];
+          renderizarMedicamentos(medicamentosFiltrados);
+        } catch (error) {
+          console.error('Erro ao carregar medicamentos:', error);
+          alert('Erro ao carregar medicamentos. Verifique se o servidor está rodando na porta 3000.');
+          // Inicializar com array vazio em caso de erro
+          medicamentos = [];
+          medicamentosFiltrados = [];
+          renderizarMedicamentos(medicamentosFiltrados);
+        }
+      }
+
+      function renderizarMedicamentos(lista) {
+        const grid = document.getElementById("medicationsGrid");
+        grid.innerHTML = lista
+          .map((med) => {
+            const badgeClass = `badge-${med.status}`;
+            const badgeText =
+              med.status === "critico"
+                ? "Estoque baixo "
+                : med.status === "atencao"
+                ? "Estoque médio"
+                : "Normal";
+            const porcentagem = (
+              (med.quantidade / med.quantidadeMaxima) *
+              100
+            ).toFixed(1);
+
+            return `
+              <div class="medication-card ${
+                med.status === "critico" ? "critical" : ""
+              }">
+                <div class="card-header">
+                  <div style="flex: 1;">
+                    <div class="medication-name">${med.nome}</div>
+                    <div class="medication-active">Dosagem: ${
+                      med.dosagem || "Não informada"
+                    }</div>
+                  </div>
+                  <span class="status-badge ${badgeClass}">${badgeText}</span>
+                </div>
+                <div class="card-body">
+                  <div class="stock-info"><strong>Estoque:</strong> ${
+                    med.quantidade
+                  }/${
+              med.quantidadeMaxima
+            } un. (${porcentagem}%)</div>
+                  </div>
+                <div class="card-actions">
+                  <button class="btn-info" onclick="verDetalhes('${
+                    med.id
+                  }')">Informações</button>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+        atualizarEstatisticas();
+      }
+
+      function atualizarEstatisticas() {
+        document.getElementById("totalMeds").textContent = medicamentos.length;
+        document.getElementById("normalMeds").textContent = medicamentos.filter(
+          (m) => m.status === "normal"
+        ).length;
+        document.getElementById("criticalMeds").textContent =
+          medicamentos.filter((m) => m.status === "critico").length;
+      }
+
+      function filtrarStatus(status, event) {
+        // Atualizar botões ativos
+        document
+          .querySelectorAll(".tab-button")
+          .forEach((b) => b.classList.remove("active"));
+        
+        // Se o evento foi passado, marcar o botão clicado como ativo
+        if (event && event.target) {
+          event.target.classList.add("active");
+        } else {
+          // Caso contrário, encontrar o botão correspondente ao status
+          const buttons = document.querySelectorAll(".tab-button");
+          buttons.forEach((btn) => {
+            if (btn.textContent.trim().toLowerCase() === status || 
+                (status === "todos" && btn.textContent.trim().toLowerCase() === "todos") ||
+                (status === "critico" && btn.textContent.trim().toLowerCase().includes("baixo")) ||
+                (status === "atencao" && btn.textContent.trim().toLowerCase().includes("médio")) ||
+                (status === "normal" && btn.textContent.trim().toLowerCase().includes("normal"))) {
+              btn.classList.add("active");
+            }
+          });
+        }
+
+        medicamentosFiltrados =
+          status === "todos"
+            ? [...medicamentos]
+            : medicamentos.filter((m) => m.status === status);
+        renderizarMedicamentos(medicamentosFiltrados);
+      }
+
+      // --------------------------------------------------------
+      // FUNÇÃO DE BUSCA
+      // Busca por nome, dosagem, bula e informacoes no frontend
+      // --------------------------------------------------------
+      function buscar() {
+        const termo = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        if (!termo) {
+          medicamentosFiltrados = [...medicamentos];
+        } else {
+          medicamentosFiltrados = medicamentos.filter(
+            (m) =>
+              m.nome.toLowerCase().includes(termo) ||
+              (m.dosagem && m.dosagem.toLowerCase().includes(termo)) ||
+              (m.bula && m.bula.toLowerCase().includes(termo)) ||
+              (m.informacoes && m.informacoes.toLowerCase().includes(termo))
+          );
+        }
+        renderizarMedicamentos(medicamentosFiltrados);
+      }
+
+      // --------------------------------------------------------
+      // FUNÇÃO DE DETALHES
+      // Mostra 'Dosagem', 'Bula' e 'Informações'
+      // --------------------------------------------------------
+      function verDetalhes(id) {
+        // Converter id para string se necessário (pode vir como número ou string)
+        const idStr = String(id);
+        // Buscar no array completo de medicamentos (não apenas nos filtrados)
+        const med = medicamentos.find((m) => String(m.id) === idStr);
+        if (!med) {
+          console.error('Medicamento não encontrado. ID:', idStr, 'Medicamentos disponíveis:', medicamentos.map(m => m.id));
+          alert("Medicamento não encontrado!");
+          return;
+        }
+        document.getElementById("modalTitle").textContent = med.nome;
+        document.getElementById("modalDetails").innerHTML = `
+            <div class="detalhe-item"><strong>Estoque:</strong><span>${
+              med.quantidade
+            }/${med.quantidadeMaxima} unidades</span></div>
+            <div class="detalhe-item"><strong>Dosagem:</strong><span>${
+              med.dosagem || "Não informada"
+            }</span></div>
+            <div class="detalhe-item"><strong>Bula:</strong><pre style="white-space: pre-wrap; font-size: 1rem; margin: 0; color: #2c3e50; border: 1px solid #eee; padding: 10px; border-radius: 5px; background: #f9f9f9;">${
+              med.bula || "Não informada"
+            }</pre></div>
+            <div class="detalhe-item"><strong>Outras Informações:</strong><pre style="white-space: pre-wrap; font-size: 1rem; margin: 0; color: #2c3e50; border: 1px solid #eee; padding: 10px; border-radius: 5px; background: #f9f9f9;">${
+              med.informacoes || "Não informada"
+            }</pre></div>
+        `;
+        document.getElementById("detailsModal").classList.add("show");
+      }
+
+      function abrirModalCadastro() {
+        document.getElementById("cadastroModal").classList.add("show");
+      }
+
+      function fecharModal(id) {
+        document.getElementById(id).classList.remove("show");
+      }
+
+      // --------------------------------------------------------
+      // FUNÇÃO DE CADASTRO
+      // Envia dados para o backend e recarrega a lista
+      // --------------------------------------------------------
+      async function cadastrarMedicamento(e) {
+        e.preventDefault();
+        
+        const quantidadeStr = document.getElementById("cadQuantidade").value;
+        const maximaStr = document.getElementById("cadMaxima").value;
+        const quantidade = parseInt(quantidadeStr);
+        const maxima = parseInt(maximaStr);
+        const bula = document.getElementById("cadBula").value.trim();
+        const informacoes = document.getElementById("cadInformacoes").value.trim();
+        const nome = document.getElementById("cadNome").value.trim();
+        const dosagem = document.getElementById("cadDose").value.trim() || "Não informada";
+        
+        // Validações
+        if (!nome) {
+          alert("Nome do medicamento é obrigatório!");
+          return;
+        }
+        if (isNaN(quantidade) || quantidade < 0) {
+          alert("Quantidade deve ser um número válido e não pode ser negativa!");
+          return;
+        }
+        if (isNaN(maxima) || maxima <= 0) {
+          alert("Quantidade máxima deve ser um número válido e maior que zero!");
+          return;
+        }
+        if (quantidade > maxima) {
+          alert("Quantidade não pode ser maior que a quantidade máxima!");
+          return;
+        }
+        if (!bula) {
+          alert("Bula é obrigatória!");
+          return;
+        }
+        if (!informacoes) {
+          alert("Outras informações são obrigatórias!");
+          return;
+        }
+        
+        // Preparar dados no formato que o backend espera
+        const medicamentoParaBackend = {
+          nome: nome,
+          dosagem: dosagem,
+          bula: bula,
+          informacoes: informacoes,
+          estoque: quantidade,
+          quantidadeMax: maxima
+        };
+
+        try {
+          // Enviar para o backend
+          const response = await fetch(`${API_BASE_URL}/medicamento/criar`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(medicamentoParaBackend)
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.erro || 'Erro ao cadastrar medicamento');
+          }
+
+          const resultado = await response.json();
+          
+          // Recarregar medicamentos do backend para garantir sincronização
+          await carregarMedicamentos();
+          
+          fecharModal("cadastroModal");
+          e.target.reset();
+          alert("Medicamento cadastrado com sucesso!");
+          
+        } catch (error) {
+          console.error('Erro ao cadastrar medicamento:', error);
+          alert(`Erro ao cadastrar medicamento: ${error.message}`);
+        }
+      }
+
+      // Carregar medicamentos ao inicializar a página
+      carregarMedicamentos();
+    </script>
+  </body>
+</html>

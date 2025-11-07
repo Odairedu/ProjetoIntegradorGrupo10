@@ -1,0 +1,86 @@
+### FUNCIONARIOS
+
+### Listar todos os funcionarios
+GET http://localhost:3000/funcionarios/ver
+
+###
+
+### Cadastro funcionario
+POST http://localhost:3000/funcionarios/cadastro
+content-type: application/json
+
+{
+  "nome": "João Silva",
+  "email": "joao@email.com",
+  "senha": "senha123",
+  "cargo": "Medico"
+}
+
+###
+
+### Autenticar funcionario
+POST http://localhost:3000/funcionarios/autenticacao
+content-type: application/json
+
+{
+  "email": "joao@email.com",
+  "senha": "senha123"
+}
+
+### MEDICAMENTO
+
+### Listar todos os medicamento
+GET http://localhost:3000/medicamento
+
+###
+
+### Medicamento atualizado com sucesso
+POST http://localhost:3000/medicamento
+content-type: application/json
+
+{
+  "nome": "Paracetamol",
+  "dosagem": "500mg",
+  "bula": "Utilizado para aliviar dores e febres.",
+  "informacao": "Tomar de 6 em 6 horas.",
+  "estoque": 10
+}
+
+###
+
+### Medicamento atualizado com sucesso
+POST http://localhost:3000/medicamentos
+content-type: application/json
+
+{
+  "nome": "Ibuprofeno",
+  "dosagem": "400mg",
+  "bula": "Anti-inflamatório e analgésico.",
+  "informacao": "Tomar após as refeições.",
+  "estoque": 10
+}
+
+###
+
+### filtrar medicamentos por nome (retorna lista)
+GET http://localhost:3000/medicamento/filtrar?nome=Paracetamol
+
+###
+
+### filtrar medicamentos por dosagem (retorna lista)
+GET http://localhost:3000/medicamento/filtrar?dosagem=Tomar%20de%206%20em%206%20horas
+
+###
+
+### filtrar medicamentos por bula (retorna lista)
+GET http://localhost:3000/medicamento/filtrar?bula=leve&informacaoMax=intensa
+
+###
+
+### filtrar medicamentos por informacoes (retorna lista)
+GET http://localhost:3000/medicamento/filtrar?informacoes=informacoes
+
+###
+
+### filtrar medicamentos por estoque (retorna lista)
+GET http://localhost:3000/medicamento/filtrar?estoque=10-30

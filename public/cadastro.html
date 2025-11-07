@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Sistema Farmácia</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        body {
+            background: #E7F0FA;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #4169E1;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4169E1;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4169E1;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #003366;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .link-login {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .link-login a {
+            color: #4169E1;
+            text-decoration: none;
+        }
+        .link-login a:hover {
+            text-decoration: underline;
+        }
+        #mensagem {
+            display: none;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cadastro de Funcionário</h1>
+        
+        <div id="mensagem"></div>
+
+        <form id="formCadastro">
+            <div class="form-group">
+                <label for="nome">Nome Completo</label>
+                <input type="text" id="nome" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmarSenha">Confirmar Senha</label>
+                <input type="password" id="confirmarSenha" required>
+            </div>
+
+            <div class="form-group">
+                <label for="cargo">Cargo</label>
+                <select id="cargo" required>
+                    <option value="">Selecione um cargo</option>
+                    <option value="Farmacêutico">Farmacêutico</option>
+                    <option value="Atendente">Técnico em Farmácia</option>
+                    <option value="Gerente">Médico</option>
+                    <option value="Estoquista">Enfermeiro</option>
+                </select>
+            </div>
+
+            <button type="submit" id="btnCadastrar">Cadastrar</button>
+        </form>
+
+        <div class="link-login">
+            Já tem conta? <a href="index.html">Fazer Login</a>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+        const form = document.getElementById('formCadastro');
+        const mensagemDiv = document.getElementById('mensagem');
+        const btnCadastrar = document.getElementById('btnCadastrar');
+
+        function mostrarMensagem(texto, tipo) {
+            mensagemDiv.textContent = texto;
+            mensagemDiv.style.display = 'block';
+            
+            if (tipo === 'erro') {
+                mensagemDiv.style.backgroundColor = '#ffebee';
+                mensagemDiv.style.color = '#c62828';
+                mensagemDiv.style.border = '1px solid #ef5350';
+            } else {
+                mensagemDiv.style.backgroundColor = '#e8f5e9';
+                mensagemDiv.style.color = '#2e7d32';
+                mensagemDiv.style.border = '1px solid #66bb6a';
+            }
+        }
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const nome = document.getElementById('nome').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const senha = document.getElementById('senha').value;
+            const confirmarSenha = document.getElementById('confirmarSenha').value;
+            const cargo = document.getElementById('cargo').value;
+
+            // Validações
+            if (!nome || !email || !senha || !cargo) {
+                mostrarMensagem('Preencha todos os campos!', 'erro');
+                return;
+            }
+
+            if (senha !== confirmarSenha) {
+                mostrarMensagem('As senhas não coincidem!', 'erro');
+                return;
+            }
+
+            if (senha.length < 6) {
+                mostrarMensagem('A senha deve ter no mínimo 6 caracteres!', 'erro');
+                return;
+            }
+
+            // Verificar se email já existe no localStorage
+            const usuariosCadastrados = JSON.parse(localStorage.getItem('usuariosCadastrados')) || [];
+            const emailExiste = usuariosCadastrados.some(user => user.email === email);
+            
+            if (emailExiste) {
+                mostrarMensagem('Este email já está cadastrado!', 'erro');
+                return;
+            }
+
+            btnCadastrar.disabled = true;
+            btnCadastrar.textContent = 'Cadastrando...';
+
+            // Criar objeto do usuário
+            const novoUsuario = {
+                id: Date.now(), // ID único baseado no timestamp
+                nome,
+                email,
+                senha,
+                cargo,
+                dataCadastro: new Date().toISOString()
+            };
+
+            // Salvar no localStorage primeiro
+            usuariosCadastrados.push(novoUsuario);
+            localStorage.setItem('usuariosCadastrados', JSON.stringify(usuariosCadastrados));
+
+            // Tentar salvar no backend também (mas não falhar se não conseguir)
+            try {
+                const resposta = await fetch(`${API_URL}/funcionarios/cadastro`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nome,
+                        email,
+                        senha,
+                        cargo
+                    })
+                });
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    console.warn('Backend retornou erro:', dados.erro);
+                }
+
+            } catch (erro) {
+                console.warn('Não foi possível conectar ao backend:', erro);
+                // Não exibir erro para o usuário, pois já salvou localmente
+            }
+
+            // Sucesso! (já salvou no localStorage)
+            mostrarMensagem('Cadastro realizado com sucesso!', 'sucesso');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html?cadastro=sucesso';
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
