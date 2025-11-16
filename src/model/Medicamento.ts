@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 export class Medicamento {
   constructor(
     private id: string,
@@ -7,8 +9,7 @@ export class Medicamento {
     private informacoes: string,
     private estoque: number,
     private quantidadeMax: number
-  ) {
-  }
+  ) {}
 
   static create(
     nome: string,
@@ -18,8 +19,16 @@ export class Medicamento {
     estoque: number,
     quantidadeMax: number
   ) {
-    const id = crypto.randomUUID();
-    return new Medicamento(id, nome, dosagem, bula, informacoes, estoque, quantidadeMax);
+    const id = randomUUID();
+    return new Medicamento(
+      id,
+      nome,
+      dosagem,
+      bula,
+      informacoes,
+      estoque,
+      quantidadeMax
+    );
   }
 
   getId(): string {
@@ -42,7 +51,7 @@ export class Medicamento {
     return this.informacoes;
   }
   getEstoque(): number {
-    return this.estoque
+    return this.estoque;
   }
   getQuantidadeMax(): number {
     return this.quantidadeMax;
@@ -66,13 +75,13 @@ export class Medicamento {
     if (!informacoes) throw new Error("Informações obrigatórias");
     this.informacoes = informacoes;
   }
-  setEstoque(estoque: number): void{
-    if(estoque === undefined || estoque === null) throw new Error("Estoque obrigatório"); 
+  setEstoque(estoque: number): void {
+    if (estoque === undefined || estoque === null)
+      throw new Error("Estoque obrigatório");
     this.estoque = estoque;
   }
   setQuantidadeMax(quantidadeMax: number): void {
     if (!quantidadeMax) throw new Error("Quantidade máxima obrigatória");
     this.quantidadeMax = quantidadeMax;
   }
-
 }

@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { randomUUID } from "node:crypto";
 
 export class Funcionario {
   constructor(
@@ -7,11 +8,10 @@ export class Funcionario {
     private senha: string,
     private email: string,
     private cargo: string
-  ) {
-  }
+  ) {}
 
   static create(nome: string, senha: string, email: string, cargo: string) {
-    const id = crypto.randomUUID();
+    const id = randomUUID();
     const hashedPassword = bcrypt.hashSync(senha);
     return new Funcionario(id, nome, email, hashedPassword, cargo);
   }
